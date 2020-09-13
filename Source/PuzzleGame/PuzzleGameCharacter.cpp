@@ -177,6 +177,12 @@ void APuzzleGameCharacter::ProcessTraceHit(FHitResult& HitOut) {
 				actorState = "Press E to pick up the key.\n";
 			}
 		}
+		else if (currentActor->GetClass()->IsChildOf(AHealthPickup::StaticClass())) {
+			AHealthPickup* HealthPickup = Cast<AHealthPickup>(currentActor);
+			actorName = "Health Pack\n";
+			actorInfo = "This will increase your health by 20 points.\n";
+			actorState = "Press E to pickup the health pack.";
+		}
 	}
 	else {
 		ClearTrace();
@@ -234,7 +240,7 @@ void APuzzleGameCharacter::Interact() {
 		else if (currentActor->GetClass()->IsChildOf(ADoorKey::StaticClass())) {
 			if (currentActor->GetName() == "MyDoorKey_2") {
 				doorKey = currentActor;
-				currentActor->SetActorHiddenInGame(true);
+				currentActor->Destroy();
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Key picked up."));
 			}
 			if (currentActor->GetName() == "MyDoorKey2_5") {
@@ -244,6 +250,11 @@ void APuzzleGameCharacter::Interact() {
 					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Door unlocked somewhere."));
 				}
 			}
+		}
+		else if (currentActor->GetClass()->IsChildOf(AHealthPickup::StaticClass())) {
+			AHealthPickup* HealthPickup = Cast<AHealthPickup>(currentActor);
+			health += HealthPickup->health;
+			currentActor->Destroy();
 		}
 		//IInteractable::Execute_Interact(currentActor);
 	}

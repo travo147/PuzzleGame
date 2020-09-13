@@ -6,6 +6,7 @@
 #include "Interactable.h"
 #include "VerticalDoor.h"
 #include "DoorKey.h"
+#include "HealthPickup.h"
 #include "GameFramework/Character.h"
 #include "PuzzleGameCharacter.generated.h"
 
