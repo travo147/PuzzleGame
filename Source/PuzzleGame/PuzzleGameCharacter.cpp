@@ -103,7 +103,6 @@ bool APuzzleGameCharacter::Trace(
 	TraceParams.bReturnPhysicalMaterial = ReturnPhysMat;
 	TraceParams.AddIgnoredActors(ActorsToIgnore);
 	const FName TraceTag("MyTraceTag");
-	//World->DebugDrawTraceTag = TraceTag;
 	TraceParams.TraceTag = TraceTag;
 	HitOut = FHitResult(ForceInit);
 
@@ -145,8 +144,9 @@ void APuzzleGameCharacter::CallMyTrace() {
 
 void APuzzleGameCharacter::ProcessTraceHit(FHitResult& HitOut) {
 
+	//Each interactable has its own description, state, and name, so this is the way to get those
+	//These are called by the HUD blueprint to output to the player.
 	if (HitOut.GetActor()->GetClass()->ImplementsInterface(UInteractable::StaticClass())) {
-		//UE_LOG(LogClass, Warning, TEXT("It's Interactable. %s"), *HitOut.GetActor()->GetName());
 		isInteractable = true;
 		currentActor = HitOut.GetActor();
 		if (currentActor->GetClass()->IsChildOf(AVerticalDoor::StaticClass())) {
@@ -204,13 +204,8 @@ void APuzzleGameCharacter::Tick(float DeltaTime) {
 	if (time > 5) {
 		time -= 5;
 		health -= 10;
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%i"), health));
 	}
 	CallMyTrace();
-
-	/*if (health <= 0) {
-		playerisdead;
-	}*/
 
 }
 
@@ -222,41 +217,45 @@ bool APuzzleGameCharacter::GetDoorKey() {
 
 void APuzzleGameCharacter::Interact() {
 	if (currentActor && isInteractable) {
+		//The actor that is traced is checked to see whether it's a Door, Key, or Pickup.
 		if (currentActor->GetClass()->IsChildOf(AVerticalDoor::StaticClass())) {
 			AVerticalDoor* Door = Cast<AVerticalDoor>(currentActor);
+			//If the key opens this door, it unlocks and opens it, then gets rid of the key.
 			if (Door->IsLocked() && doorKey) {
 				ADoorKey* Key = Cast<ADoorKey>(doorKey);
 				if (Key->GetDoor() == Door) {
 					Door->UnlockDoor();
 					doorKey = nullptr;
-					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Door unlocked."));
 					AVerticalDoor::Execute_Interact(currentActor);
 				}
 			}
+			//If the door's unlocked, it just opens the door.
 			else if (!Door->IsLocked()) {
 				AVerticalDoor::Execute_Interact(currentActor);
 			}
 		}
+		//If the key is a pickup, it picks up the key and is put into the player's inventory.
 		else if (currentActor->GetClass()->IsChildOf(ADoorKey::StaticClass())) {
 			if (currentActor->GetName() == "MyDoorKey_2") {
 				doorKey = currentActor;
 				currentActor->Destroy();
-				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Key picked up."));
 			}
+			//If the key is a remote, it unlocks the door assigned to it.
 			if (currentActor->GetName() == "MyDoorKey2_5") {
 				ADoorKey* Key = Cast<ADoorKey>(currentActor);
 				if (Key->GetDoor()->IsLocked()) {
 					Key->GetDoor()->UnlockDoor();
-					//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Door unlocked somewhere."));
 				}
 			}
 		}
+		//If the actor's a pickup, it adds the health allocated to the player, unless it's more than the player's
+		//			maximum, in that case it sets it to the maximum.
 		else if (currentActor->GetClass()->IsChildOf(AHealthPickup::StaticClass())) {
 			AHealthPickup* HealthPickup = Cast<AHealthPickup>(currentActor);
 			health += HealthPickup->health;
+			if (health > 200) health = 200;
 			currentActor->Destroy();
 		}
-		//IInteractable::Execute_Interact(currentActor);
 	}
 
 }
@@ -286,6 +285,8 @@ void APuzzleGameCharacter::BeginPlay()
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AVerticalDoor::StaticClass(), doorList);
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADoorKey::StaticClass(), keyList);
 
+
+	//This sets the doors to the keys so that only the specific key can open the door assigned to it.
 	for (int i = 0; i < keyList.Num(); i++) {
 		if (keyList[i]->GetName() == "MyDoorKey_2") {
 			for (int j = 0; j < doorList.Num(); j++) {

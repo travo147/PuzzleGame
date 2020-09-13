@@ -21,6 +21,7 @@ APuzzleGameHUD::APuzzleGameHUD()
 
 }
 
+//Easy way to get the player's health for the blueprints.
 void APuzzleGameHUD::UpdatePlayerHealth() {
 	playerHealth = player->GetHealth();
 

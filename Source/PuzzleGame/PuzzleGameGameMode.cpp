@@ -18,6 +18,8 @@ APuzzleGameGameMode::APuzzleGameGameMode()
 
 }
 
+//So each state is set here, but there really only needs to be 2. Playing and Paused. Just wanted to be true to the assignment.
+//Beginning play is normally a main menu, so the game is initially set to the paused settings.
 void APuzzleGameGameMode::BeginPlay() {
 	if (GetWorld()) {
 		APlayerController* player = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -28,6 +30,7 @@ void APuzzleGameGameMode::BeginPlay() {
 	}
 }
 
+//Playing sets the world to be unpaused, hiding the cursor, and sets the input mode to game only.
 void APuzzleGameGameMode::SetPlaying() {
 	if (GetWorld()) {
 		APlayerController* player = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -39,6 +42,7 @@ void APuzzleGameGameMode::SetPlaying() {
 	}
 }
 
+//Paused sets the opposite, showing the cursor, setting the input to UI only, and hiding the current HUD.
 void APuzzleGameGameMode::SetPaused() {
 	if (GetWorld()) {
 		APlayerController* player = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -72,6 +76,7 @@ void APuzzleGameGameMode::SetWon() {
 	}
 }
 
+//Easy way to quit the game.
 void APuzzleGameGameMode::SetExit() {
 	if (GetWorld()) {
 		APlayerController* player = UGameplayStatics::GetPlayerController(GetWorld(), 0);
