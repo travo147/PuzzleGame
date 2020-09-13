@@ -308,6 +308,8 @@ void APuzzleGameCharacter::SetupPlayerInputComponent(class UInputComponent* Play
 
 	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &APuzzleGameCharacter::Interact);
 
+	PlayerInputComponent->BindAction("Kill", IE_Pressed, this, &APuzzleGameCharacter::Kill);
+
 	// Bind jump events
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);

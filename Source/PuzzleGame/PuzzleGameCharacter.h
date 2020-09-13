@@ -118,6 +118,7 @@ public:
 
 protected:
 
+	void Kill() { health = 0; }
 	void Interact();
 	bool isInteractable;
 	AActor* currentActor = NULL;
